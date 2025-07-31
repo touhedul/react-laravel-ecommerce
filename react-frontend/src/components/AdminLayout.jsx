@@ -1,17 +1,16 @@
 import React from 'react'
 import Navbar from './home/Navbar'
 import Footer from './home/Footer'
-import NewsLetter from './home/NewsLetter'
+import Header from './home/Header'
 
-const Layout = ({ children }) => {
+const AdminLayout = ({ children }) => {
     return (
         <>
-            <Navbar />
+            <Header />
             {children}
-            <NewsLetter />
             <Footer />
         </>
     )
 }
 
-export default Layout
+export default AdminLayout
