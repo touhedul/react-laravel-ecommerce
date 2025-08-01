@@ -9,6 +9,8 @@ import Checkout from './pages/Checkout'
 import Login from './pages/admin/Login'
 import Dashboard from './pages/admin/Dashboard'
 
+import { ToastContainer, toast } from 'react-toastify';
+
 function App() {
 
   return (
@@ -22,7 +24,9 @@ function App() {
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/admin/login' element={<Login />} />
           <Route path='/admin/dashboard' element={<Dashboard />} />
+
         </Routes>
+        <ToastContainer />
       </BrowserRouter>
     </>
   )

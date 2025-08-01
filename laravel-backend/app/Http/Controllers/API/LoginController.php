@@ -20,6 +20,6 @@ class LoginController extends Controller
             return response()->json(['token' => $token]);
         }
 
-        return response()->json(['error' => 'The provided credentials do not match our records.'], 401);
+        return response()->json(['message' => 'The provided credentials do not match our records.'], 401);
     }
 }
