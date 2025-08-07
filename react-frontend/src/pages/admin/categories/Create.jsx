@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AdminLayout from '../../../components/AdminLayout'
 import { useForm } from 'react-hook-form'
 import axios from '../../../api/axios';
@@ -6,23 +6,31 @@ import { toast } from 'react-toastify';
 
 const Create = () => {
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors }, setError } = useForm({
         criteriaMode: "all", // <-- this is required to get all error messages
 
     });
 
+    const [loading, setLoading] = useState(false);
     const createCategory = (data) => {
 
-
+        setLoading(true);
         axios.post('/categories', data)
             .then((response) => {
                 toast.success("Category Created Successfully");
                 // Optionally, redirect or show a success message
             })
             .catch((error) => {
+                if (error.response?.status === 422) {
+                    toast.error(error.response?.data?.message);
+                }
                 toast.error("Error creating category");
                 // Optionally, show an error message
-            });
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+
     }
     return (
 
@@ -37,20 +45,27 @@ const Create = () => {
                                 {...register('name', {
                                     required: 'Category name is required',
                                     maxLength: {
-                                        value: 2,
+                                        value: 255,
                                         message: 'Category name must be at most 2 characters'
                                     }
                                 })}
 
                                 type="text" className="form-control" id="categoryName" placeholder="Enter category name" />
-                            {/* {errors.name && } */}
-                            {/* {errors.name && <span className="text-danger">{errors.name[0]}</span>} */}
-                            {errors.name?.types &&
-                                Object.values(errors.name.types).map((msg, index) => (
+                            {errors.name?.types
+                                && Object.values(errors.name.types).map((msg, index) => (
                                     <div key={index} className="text-danger">{msg}</div>
-                                ))}
+                                ))
+                            }
+
+
                         </div>
-                        <button type="submit" className="btn btn-primary mt-20">Create Category</button>
+                        <button type="submit" className="btn btn-primary mt-20">
+
+                            {loading ? (
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true">Creating...</span>
+                            ) : 'Create'}
+
+                        </button>
                     </form>
                 </div>
             </div>

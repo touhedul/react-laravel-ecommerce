@@ -1,8 +1,48 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import AdminLayout from '../../../components/AdminLayout'
 import { Link } from 'react-router-dom'
+import axiosInstance from '../../../api/axios';
+import { toast } from 'react-toastify';
 
 const Index = () => {
+
+    const [categories, setCategories] = useState([]);
+
+    const [loading, setLoading] = useState(false);
+
+    const getCategories = () => {
+        setLoading(true);
+        axiosInstance.get('/categories')
+            .then((response) => {
+                setCategories(response.data);
+            })
+            .catch((error) => {
+                toast.error('Something went wrong');
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+    }
+
+    const deleteCategory = (categoryId) => {
+        setLoading(true);
+        axiosInstance.delete('/categories/' + categoryId)
+            .then((response) => {
+                getCategories();
+                toast.success('Delete successful.');
+            })
+            .catch((error) => {
+                toast.error('Something went wrong');
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+    }
+
+    useEffect(() => {
+        getCategories();
+    }, [])
+
     return (
         <AdminLayout>
             <div className="row mt-4">
@@ -18,62 +58,48 @@ const Index = () => {
 
                         <div className='card-body'>
                             <div class="dashboard-wrapper user-dashboard">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Order ID</th>
-                                                <th>Date</th>
-                                                <th>Items</th>
-                                                <th>Total Price</th>
-                                                <th>Status</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>#451231</td>
-                                                <td>Mar 25, 2016</td>
-                                                <td>2</td>
-                                                <td>$99.00</td>
-                                                <td><span class="label label-primary">Processing</span></td>
-                                                <td><a href="order.html" class="btn btn-default">View</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>#451231</td>
-                                                <td>Mar 25, 2016</td>
-                                                <td>3</td>
-                                                <td>$150.00</td>
-                                                <td><span class="label label-success">Completed</span></td>
-                                                <td><a href="order.html" class="btn btn-default">View</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>#451231</td>
-                                                <td>Mar 25, 2016</td>
-                                                <td>3</td>
-                                                <td>$150.00</td>
-                                                <td><span class="label label-danger">Canceled</span></td>
-                                                <td><a href="order.html" class="btn btn-default">View</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>#451231</td>
-                                                <td>Mar 25, 2016</td>
-                                                <td>2</td>
-                                                <td>$99.00</td>
-                                                <td><span class="label label-info">On Hold</span></td>
-                                                <td><a href="order.html" class="btn btn-default">View</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>#451231</td>
-                                                <td>Mar 25, 2016</td>
-                                                <td>3</td>
-                                                <td>$150.00</td>
-                                                <td><span class="label label-warning">Pending</span></td>
-                                                <td><a href="order.html" class="btn btn-default">View</a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+
+                                {
+                                    loading && 'Data is loading'
+                                }
+                                {
+                                    !loading &&
+
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+
+
+                                                {
+                                                    categories && categories.map((category) => {
+                                                        return (
+                                                            <tr key={category.id}>
+                                                                <td>{category.name}</td>
+                                                                <td>{category.status == 1 ? 'Active' : 'Disabled'}</td>
+                                                                <td><Link to={`/admin/categories/edit/${category.id}`} className='btn btn-success'>Edit </Link>
+
+                                                                    <button className='btn btn-danger' onClick={() => deleteCategory(category.id)}>
+
+                                                                        {loading ? 'Delete' : 'Deleting'}
+
+                                                                    </button></td>
+                                                            </tr>
+                                                        );
+                                                    })
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>

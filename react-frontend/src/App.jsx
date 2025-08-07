@@ -14,6 +14,7 @@ import { AdminRequireAuth } from './pages/admin/AdminRequireAuth'
 import { AdminAuthProvider } from './components/context/AdminAuthContext'
 import { default as CategoriesIndex } from './pages/admin/categories/Index'
 import { default as CategoriesCreate } from './pages/admin/categories/Create'
+import { default as CategoriesEdit } from './pages/admin/categories/Edit'
 
 function App() {
 
@@ -42,6 +43,11 @@ function App() {
             <Route path='/admin/categories/create' element={
               <AdminRequireAuth>
                 <CategoriesCreate />
+              </AdminRequireAuth>
+            } />
+            <Route path='/admin/categories/edit/:id' element={
+              <AdminRequireAuth>
+                <CategoriesEdit />
               </AdminRequireAuth>
             } />
 
