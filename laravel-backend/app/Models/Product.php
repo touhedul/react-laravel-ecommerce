@@ -23,4 +23,14 @@ class Product extends Model
         'image',
         'sku',
     ];
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function sizes()
+    {
+        return $this->belongsToMany(Size::class, 'product_sizes');
+    }
 }

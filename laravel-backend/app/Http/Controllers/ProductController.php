@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -13,15 +14,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return Product::with('images', 'sizes')->latest()->get();
     }
 
     /**
@@ -29,7 +22,22 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $product = Product::create($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create(['image' => $path]);
+            }
+        }
+
+        if (isset($validated['sizes'])) {
+            $product->sizes()->attach($validated['sizes']);
+        }
+
+        return response()->json($product->load('images', 'sizes'), 201);
     }
 
     /**
@@ -37,15 +45,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
+        return $product->load('images', 'sizes');
     }
 
     /**
@@ -53,7 +53,28 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        //
+        $validated = $request->validated();
+
+        $product->update($validated);
+
+        if ($request->hasFile('images')) {
+            // Delete old images
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete($image->image);
+                $image->delete();
+            }
+
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create(['image' => $path]);
+            }
+        }
+
+        if (isset($validated['sizes'])) {
+            $product->sizes()->sync($validated['sizes']);
+        }
+
+        return response()->json($product->load('images', 'sizes'));
     }
 
     /**
@@ -61,6 +82,11 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->image);
+            $image->delete();
+        }
+        $product->delete();
+        return response()->json(null, 204);
     }
 }
