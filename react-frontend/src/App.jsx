@@ -12,9 +12,14 @@ import Dashboard from './pages/admin/Dashboard'
 import { ToastContainer, toast } from 'react-toastify';
 import { AdminRequireAuth } from './pages/admin/AdminRequireAuth'
 import { AdminAuthProvider } from './components/context/AdminAuthContext'
+
 import { default as CategoriesIndex } from './pages/admin/categories/Index'
 import { default as CategoriesCreate } from './pages/admin/categories/Create'
 import { default as CategoriesEdit } from './pages/admin/categories/Edit'
+
+import { default as ProductsIndex } from './pages/admin/products/Index'
+import { default as ProductsCreate } from './pages/admin/products/Create'
+import { default as ProductsEdit } from './pages/admin/products/Edit'
 
 function App() {
 
@@ -48,6 +53,23 @@ function App() {
             <Route path='/admin/categories/edit/:id' element={
               <AdminRequireAuth>
                 <CategoriesEdit />
+              </AdminRequireAuth>
+            } />
+
+
+            <Route path='/admin/products' element={
+              <AdminRequireAuth>
+                <ProductsIndex />
+              </AdminRequireAuth>
+            } />
+            <Route path='/admin/products/create' element={
+              <AdminRequireAuth>
+                <ProductsCreate />
+              </AdminRequireAuth>
+            } />
+            <Route path='/admin/products/edit/:id' element={
+              <AdminRequireAuth>
+                <ProductsEdit />
               </AdminRequireAuth>
             } />
 

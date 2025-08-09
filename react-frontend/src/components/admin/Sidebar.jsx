@@ -11,8 +11,7 @@ const Sidebar = () => {
                 <ul class="nav flex-column">
                     <li class="nav-item"><Link class="nav-link" to="/admin/dashboard">Dashboard</Link></li>
                     <li class="nav-item"><Link class="nav-link" to="/admin/categories">Categories</Link></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Brands</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Products</a></li>
+                    <li class="nav-item"><Link class="nav-link" to="/admin/products">Products</Link></li>
                     <li class="nav-item"><a class="nav-link" href="#">Orders</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Users</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Shipping</a></li>
