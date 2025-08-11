@@ -1,17 +1,29 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import AdminLayout from '../../../components/AdminLayout'
 import { useForm } from 'react-hook-form'
 import axios from '../../../api/axios';
 import { toast } from 'react-toastify';
 
+import Editor from 'react-simple-wysiwyg';
+
 const Create = () => {
+
+    function onChange(e) {
+        setHtml(e.target.value);
+    }
+
 
     const { register, handleSubmit, formState: { errors }, setError } = useForm({
         criteriaMode: "all", // <-- this is required to get all error messages
 
     });
 
+    const [html, setHtml] = useState();
+
+
+
     const [loading, setLoading] = useState(false);
+    const [categories, setCategories] = useState(null);
     const createProduct = (data) => {
 
         setLoading(true);
@@ -32,6 +44,17 @@ const Create = () => {
             })
 
     }
+
+    const getCategories = () => {
+        axios.get('/categories')
+            .then((response) => {
+                setCategories(response.data)
+            })
+    }
+
+    useEffect(() => {
+        getCategories()
+    }, [])
     return (
 
         <AdminLayout>
@@ -42,11 +65,11 @@ const Create = () => {
                             <label htmlFor="categoryName" className="form-label">Product Title</label>
                             <input
 
-                                {...register('name', {
-                                    required: 'Category name is required',
+                                {...register('title', {
+                                    required: 'Product title is required',
                                     maxLength: {
                                         value: 255,
-                                        message: 'Category name must be at most 2 characters'
+                                        message: 'Product title must be at most 255 characters'
                                     }
                                 })}
 
@@ -58,6 +81,46 @@ const Create = () => {
                             }
 
 
+                        </div> <br />
+                        <div className="mb-3">
+
+                            <select {
+                                ...register('category_id', {
+                                    required: 'Category is required'
+                                })
+                            } className='form-control'>
+                                <option value="">Select Category</option>
+                                {categories && categories.map((category) =>
+                                    <option key={`category#${category.id}`} value={category.id}>{category.name}</option>
+                                )
+                                }
+                            </select>
+
+                        </div><br />
+                        <div className="mb-3">
+                            <Editor
+                                containerProps={{ style: { height: '250px' } }} value={html} placeholder='Enter product description' onChange={onChange} />
+
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input type="number" className='form-control' placeholder='Enter product price' />
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input type="number" className='form-control' placeholder='Enter discounted product price' />
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input type="text" className='form-control' placeholder='Enter product sku' />
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input type="number" className='form-control' placeholder='Enter quantity' />
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input type="file" className='form-control' placeholder='Upload Image' />
                         </div>
                         <button type="submit" className="btn btn-primary mt-20">
 
