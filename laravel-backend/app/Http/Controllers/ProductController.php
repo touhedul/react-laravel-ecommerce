@@ -33,10 +33,6 @@ class ProductController extends Controller
             }
         }
 
-        if (isset($validated['sizes'])) {
-            $product->sizes()->attach($validated['sizes']);
-        }
-
         return response()->json($product->load('images', 'sizes'), 201);
     }
 

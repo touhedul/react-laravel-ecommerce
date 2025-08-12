@@ -6,15 +6,15 @@ import { toast } from 'react-toastify';
 
 const Index = () => {
 
-    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
 
     const [loading, setLoading] = useState(false);
 
-    const getCategories = () => {
+    const getProducts = () => {
         setLoading(true);
-        axiosInstance.get('/categories')
+        axiosInstance.get('/products')
             .then((response) => {
-                setCategories(response.data);
+                setProducts(response.data);
             })
             .catch((error) => {
                 toast.error('Something went wrong');
@@ -24,11 +24,11 @@ const Index = () => {
             })
     }
 
-    const deleteCategory = (categoryId) => {
+    const deleteProduct = (productId) => {
         setLoading(true);
-        axiosInstance.delete('/categories/' + categoryId)
+        axiosInstance.delete('/products/' + productId)
             .then((response) => {
-                getCategories();
+                getProducts();
                 toast.success('Delete successful.');
             })
             .catch((error) => {
@@ -40,7 +40,7 @@ const Index = () => {
     }
 
     useEffect(() => {
-        getCategories();
+        getProducts();
     }, [])
 
     return (
@@ -69,7 +69,9 @@ const Index = () => {
                                         <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <th>Name</th>
+                                                    <th>Title</th>
+                                                    <th>Price</th>
+                                                    <th>Quantity</th>
                                                     <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
@@ -79,16 +81,18 @@ const Index = () => {
 
 
                                                 {
-                                                    categories && categories.map((category) => {
+                                                    products && products.map((product) => {
                                                         return (
-                                                            <tr key={category.id}>
-                                                                <td>{category.name}</td>
-                                                                <td>{category.status == 1 ? 'Active' : 'Disabled'}</td>
-                                                                <td><Link to={`/admin/categories/edit/${category.id}`} className='btn btn-success'>Edit </Link>
+                                                            <tr key={product.id}>
+                                                                <td>{product.title}</td>
+                                                                <td>{product.price}</td>
+                                                                <td>{product.quantity}</td>
+                                                                <td>{product.status == 1 ? 'Active' : 'Disabled'}</td>
+                                                                <td><Link to={`/admin/products/edit/${product.id}`} className='btn btn-success'>Edit </Link>
 
-                                                                    <button className='btn btn-danger' onClick={() => deleteCategory(category.id)}>
+                                                                    <button className='btn btn-danger' onClick={() => deleteProduct(product.id)}>
 
-                                                                        {loading ? 'Delete' : 'Deleting'}
+                                                                        {!loading ? 'Delete' : 'Deleting'}
 
                                                                     </button></td>
                                                             </tr>
