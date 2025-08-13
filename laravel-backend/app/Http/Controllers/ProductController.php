@@ -49,6 +49,7 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        return $request->all();
         $validated = $request->validated();
 
         $product->update($validated);
@@ -64,10 +65,6 @@ class ProductController extends Controller
                 $path = $image->store('products', 'public');
                 $product->images()->create(['image' => $path]);
             }
-        }
-
-        if (isset($validated['sizes'])) {
-            $product->sizes()->sync($validated['sizes']);
         }
 
         return response()->json($product->load('images', 'sizes'));

@@ -1,83 +1,177 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import AdminLayout from '../../../components/AdminLayout'
 import { useForm } from 'react-hook-form'
 import axios from '../../../api/axios';
 import { toast } from 'react-toastify';
-import { useNavigate, useParams } from 'react-router-dom';
-import axiosInstance from '../../../api/axios';
+
+import Editor from 'react-simple-wysiwyg';
+import { useParams } from 'react-router-dom';
+import { VITE_IMAGE_URL } from "../../../config/config";
+
 
 const Edit = () => {
 
-    const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
-        criteriaMode: "all", // <-- this is required to get all error messages
+    function onChange(e) {
+        setHtml(e.target.value);
+    }
 
-    });
-
-    const [loading, setLoading] = useState(false);
-    const [category, setCategory] = useState();
     const params = useParams();
 
-    const navigate = useNavigate();
+    const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
+        criteriaMode: "all",
+    });
 
-    const updateCategory = (data) => {
+    const [html, setHtml] = useState();
+
+
+
+    const [loading, setLoading] = useState(false);
+    const [categories, setCategories] = useState(null);
+    const [product, setProduct] = useState(null);
+    const updateProduct = (data) => {
+
+        const payload = { ...data, description: html };
+        const formData = objectToFormData(payload);
 
         setLoading(true);
-        axios.put('/categories/' + params.id, data)
+        formData.append('_method', 'PUT');
+        axios.post('/products/' + params.id, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
             .then((response) => {
-                toast.success("Category Updated Successfully");
-                navigate('/admin/categories');
+                toast.success("Product Created Successfully");
+                reset();
+                setHtml('');
                 // Optionally, redirect or show a success message
             })
             .catch((error) => {
                 if (error.response?.status === 422) {
-                    toast.error(error.response?.data?.message);
+                    const formErrors = error.response.data.errors;
+                    Object.keys(formErrors).forEach(key => {
+                        setError(key, { message: formErrors[key][0] });
+                    })
                 }
-                toast.error("Error updating category");
+                toast.error("Error update Product");
                 // Optionally, show an error message
             })
             .finally(() => {
                 setLoading(false);
             })
+
     }
 
-    const getCategory = () => {
-        axiosInstance.get('/categories/' + params.id)
+    const getCategories = () => {
+        axios.get('/categories')
             .then((response) => {
-                setCategory(response.data)
-                reset(response.data);
+                setCategories(response.data)
             })
     }
 
+    const getProduct = () => {
+        axios.get('/products/' + params.id)
+            .then((response) => {
+                reset(response.data);
+                setHtml(response.data.description);
+                setProduct(response.data);
+            })
+    }
+    const objectToFormData = (data) => {
+
+        const formData = new FormData();
+        for (const key in data) {
+            if (data[key] instanceof FileList) {
+                // Array.from(data[key]).forEach(file => {
+                //     formData.append(`${key}[]`, file);
+                // });
+            } else {
+                formData.append(key, data[key]);
+            }
+        }
+        return formData;
+    };
+
+
     useEffect(() => {
-        getCategory();
+        getCategories();
+        getProduct()
     }, [])
     return (
 
         <AdminLayout>
             <div className="row mt-4">
                 <div className='col-md-8'>
-                    <form action={handleSubmit(updateCategory)} className='card p-4'>
+                    <form action={handleSubmit(updateProduct)} className='card p-4'>
                         <div className="mb-3">
-                            <label htmlFor="categoryName" className="form-label">Category Name</label>
+                            <label htmlFor="categoryName" className="form-label">Product Title</label>
                             <input
 
-                                {...register('name', {
-                                    required: 'Category name is required',
-                                    maxLength: {
-                                        value: 255,
-                                        message: 'Category name must be at most 2 characters'
-                                    }
-                                })}
+                                {...register('title')}
 
-                                type="text" className="form-control" id="categoryName" placeholder="Enter category name" />
-                            {errors.name?.types
-                                && Object.values(errors.name.types).map((msg, index) => (
-                                    <div key={index} className="text-danger">{msg}</div>
-                                ))
-                            }
+                                type="text" className="form-control" id="categoryName" placeholder="Enter product title" />
 
+
+                            {errors.title && <span className="text-danger">{errors.title.message}</span>}
+
+                        </div> <br />
+                        <div className="mb-3">
+
+                            <select {
+                                ...register('category_id')
+                            } className='form-control'>
+                                <option value="">Select Category</option>
+                                {categories && categories.map((category) =>
+                                    <option key={`category#${category.id}`} value={category.id}>{category.name}</option>
+                                )
+                                }
+                            </select>
+                            {errors.category_id && <span className="text-danger">{errors.category_id.message}</span>}
+
+                        </div><br />
+                        <div className="mb-3">
+                            <Editor
+                                containerProps={{ style: { height: '250px' } }} value={html} placeholder='Enter product description' onChange={onChange} />
 
                         </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input type="number" className='form-control' placeholder='Enter product price'
+                                {...register('price')}
+                            />
+                            {errors.price && <span className="text-danger">{errors.price.message}</span>}
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input {...register('compare_price')} type="number" className='form-control' placeholder='Enter discounted product price' />
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input {...register('sku')} type="text" className='form-control' placeholder='Enter product sku' />
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <input {...register('quantity')} type="number" className='form-control' placeholder='Enter quantity' />
+                        </div>
+                        <br />
+
+                        {
+                            product && product.images.map((image, idx) => (
+                                <img key={idx} src={`${VITE_IMAGE_URL}/${image.image}`} alt="Product" />
+                            ))
+                        }
+
+                        <br />
+                        <div className='mb-3'>
+                            <input type="file" multiple className='form-control' placeholder='Upload Image' />
+                        </div>
+
+
+                        <br />
+                        <div style={{ color: "red" }}>
+                            {Object.values(errors).map((error, idx) => (
+                                <p className="text-danger" key={idx}>{error.message}</p>
+                            ))}
+                        </div>
+
                         <button type="submit" className="btn btn-primary mt-20">
 
                             {loading ? (

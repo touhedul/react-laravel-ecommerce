@@ -32,7 +32,7 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => 'sometimes|boolean',
             'image' => 'sometimes|nullable|string',
             'sku' => 'sometimes|nullable|string|max:255',
-            'images' => 'sometimes|nullable|array',
+            'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'sizes' => 'sometimes|nullable|array',
             'sizes.*' => 'exists:sizes,id',
