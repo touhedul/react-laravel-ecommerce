@@ -15,6 +15,9 @@ const Create = () => {
 
     const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
         criteriaMode: "all",
+        defaultValues: {
+            sizes: [], // make sure default is an array
+        },
     });
 
     const [html, setHtml] = useState();
@@ -23,6 +26,7 @@ const Create = () => {
 
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState(null);
+    const [allSizes, setAllSizes] = useState(null);
     const createProduct = (data) => {
 
         const payload = { ...data, description: html };
@@ -60,14 +64,24 @@ const Create = () => {
                 setCategories(response.data)
             })
     }
+    const getSizes = () => {
+        axios.get('/sizes')
+            .then((response) => {
+                setAllSizes(response.data)
+            })
+    }
 
     const objectToFormData = (data) => {
-
         const formData = new FormData();
         for (const key in data) {
             if (data[key] instanceof FileList) {
                 Array.from(data[key]).forEach(file => {
                     formData.append(`${key}[]`, file);
+                });
+            } else if (Array.isArray(data[key])) {
+                // Append each value in the array
+                data[key].forEach(item => {
+                    formData.append(`${key}[]`, item);
                 });
             } else {
                 formData.append(key, data[key]);
@@ -78,7 +92,8 @@ const Create = () => {
 
 
     useEffect(() => {
-        getCategories()
+        getCategories();
+        getSizes();
     }, [])
     return (
 
@@ -123,6 +138,20 @@ const Create = () => {
                                 {...register('price')}
                             />
                             {errors.price && <span className="text-danger">{errors.price.message}</span>}
+                        </div>
+                        <br />
+                        <div className='mb-3'>
+                            <label>Size</label>
+                            {
+                                allSizes && allSizes.map((size) => {
+                                    return (
+                                        <div key={`size#${size.id}`}>
+                                            <input {...register('sizes')} value={size.id} type="checkbox" placeholder='' />
+                                            &nbsp; {size.name}
+                                        </div>
+                                    );
+                                })
+                            }
                         </div>
                         <br />
                         <div className='mb-3'>

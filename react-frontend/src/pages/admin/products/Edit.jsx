@@ -19,6 +19,9 @@ const Edit = () => {
 
     const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
         criteriaMode: "all",
+        defaultValues: {
+            sizes: [], // make sure default is an array
+        },
     });
 
     const [html, setHtml] = useState();
@@ -28,6 +31,7 @@ const Edit = () => {
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState(null);
     const [product, setProduct] = useState(null);
+    const [allSizes, setAllSizes] = useState(null);
     const updateProduct = (data) => {
 
         const payload = { ...data, description: html };
@@ -39,9 +43,8 @@ const Edit = () => {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
             .then((response) => {
-                toast.success("Product Created Successfully");
-                reset();
-                setHtml('');
+                toast.success("Product Updated Successfully");
+                getProduct();
                 // Optionally, redirect or show a success message
             })
             .catch((error) => {
@@ -67,22 +70,45 @@ const Edit = () => {
             })
     }
 
+    const getSizes = () => {
+        axios.get('/sizes')
+            .then((response) => {
+                setAllSizes(response.data)
+            })
+    }
+
+
     const getProduct = () => {
         axios.get('/products/' + params.id)
             .then((response) => {
-                reset(response.data);
+                const selectedSizes = response.data.sizes ? response.data.sizes.map(s => s.id.toString()) : [];
+                reset({
+                    title: response.data.title,
+                    category_id: response.data.category_id,
+                    price: response.data.price,
+                    quantity: response.data.quantity,
+                    compare_price: response.data.compare_price,
+                    sku: response.data.sku,
+                    sizes: selectedSizes, // <-- important
+
+                });
                 setHtml(response.data.description);
                 setProduct(response.data);
             })
     }
-    const objectToFormData = (data) => {
 
+    const objectToFormData = (data) => {
         const formData = new FormData();
         for (const key in data) {
             if (data[key] instanceof FileList) {
-                // Array.from(data[key]).forEach(file => {
-                //     formData.append(`${key}[]`, file);
-                // });
+                Array.from(data[key]).forEach(file => {
+                    formData.append(`${key}[]`, file);
+                });
+            } else if (Array.isArray(data[key])) {
+                // Append each value in the array
+                data[key].forEach(item => {
+                    formData.append(`${key}[]`, item);
+                });
             } else {
                 formData.append(key, data[key]);
             }
@@ -93,6 +119,7 @@ const Edit = () => {
 
     useEffect(() => {
         getCategories();
+        getSizes();
         getProduct()
     }, [])
     return (
@@ -139,6 +166,21 @@ const Edit = () => {
                             />
                             {errors.price && <span className="text-danger">{errors.price.message}</span>}
                         </div>
+
+                        <br />
+                        <div className='mb-3'>
+                            <label>Size</label>
+                            {
+                                allSizes && allSizes.map((size) => {
+                                    return (
+                                        <div key={`size#${size.id}`}>
+                                            <input {...register('sizes')} value={size.id} type="checkbox" placeholder='' />
+                                            &nbsp; {size.name}
+                                        </div>
+                                    );
+                                })
+                            }
+                        </div>
                         <br />
                         <div className='mb-3'>
                             <input {...register('compare_price')} type="number" className='form-control' placeholder='Enter discounted product price' />
@@ -161,7 +203,7 @@ const Edit = () => {
 
                         <br />
                         <div className='mb-3'>
-                            <input type="file" multiple className='form-control' placeholder='Upload Image' />
+                            <input {...register('images')} type="file" multiple className='form-control' placeholder='Upload Image' />
                         </div>
 
 
