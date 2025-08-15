@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FrontendProductController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SizeController;
 
@@ -25,6 +26,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/login', [LoginController::class, 'login']);
+Route::get('/all-products', [FrontendProductController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('brands', BrandController::class);
