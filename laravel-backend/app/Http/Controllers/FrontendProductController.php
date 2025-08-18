@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class FrontendProductController extends Controller
@@ -12,9 +13,15 @@ class FrontendProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Product::with('images', 'sizes')->latest()->get();
+        $query = Product::with('images', 'sizes');
+
+        if ($request->has('categories')) {
+            $query->whereIn('category_id', $request->categories);
+        }
+
+        return $query->get();
     }
 
     public function show() {}

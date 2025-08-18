@@ -8,7 +8,7 @@ const Products = () => {
     const [loading, setLoading] = useState(false);
     const getProducts = () => {
         setLoading(true);
-        axiosInstance.get('/products')
+        axiosInstance.get('/all-products')
             .then((response) => {
                 setProducts(response.data);
             })

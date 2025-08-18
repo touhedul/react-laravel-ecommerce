@@ -1,8 +1,62 @@
 
-import Products from '../components/home/Products'
+import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
+import Product from '../components/home/Product'
+
+import axiosInstance from '../api/axios';
 
 const Shop = () => {
+
+
+    const [products, setProducts] = useState([]);
+    const [categories, setSategories] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState([]);
+    const getProducts = () => {
+
+        console.log('selectedCategory', selectedCategory);
+        const params = new URLSearchParams();
+        if (selectedCategory.length > 0) {
+            selectedCategory.forEach((cat) => params.append("categories[]", cat));
+        }
+        setLoading(true);
+        const url = `/all-products?${params.toString()}`;
+        console.log('url', url);
+        axiosInstance.get(url)
+            .then((response) => {
+                setProducts(response.data);
+            })
+            .catch((error) => {
+                toast.error('Something went wrong');
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+    }
+    const getCategories = () => {
+        axiosInstance.get('/categories')
+            .then((response) => {
+                setSategories(response.data);
+            })
+            .catch((error) => {
+                toast.error('Something went wrong');
+            })
+    }
+
+    const handleCategoryChange = (e) => {
+        const { checked, value } = e.target;
+        if (checked) {
+            setSelectedCategory(pre => [...pre, value]);
+        } else {
+            setSelectedCategory(selectedCategory.filter((id) => id != value));
+        }
+    }
+
+    useEffect(() => {
+        getCategories();
+        getProducts();
+    }, [selectedCategory])
+
     return (
         <>
             <Layout>
@@ -19,279 +73,30 @@ const Shop = () => {
                                 <div className="card mb-3 shadow-sm">
                                     <div className="card-body">
                                         <h5 className="card-title">Categories</h5>
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" id="cat-kids-1" />
-                                            &nbsp;Kids
-                                        </div>
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" id="cat-mens" />
-                                            &nbsp;Mens
-                                        </div>
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" id="cat-kids-2" />
-                                            &nbsp;Kids
-                                        </div>
+                                        {
+                                            categories && categories.map((category) => {
+                                                return (
+                                                    <div className="form-check" key={category.id}>
+                                                        <input value={category.id} className="form-check-input" type="checkbox" id={`cat-${category.id}`}
+                                                            onClick={handleCategoryChange} />
+
+                                                        &nbsp;{category.name}
+                                                    </div>
+                                                )
+                                            })
+                                        }
                                     </div>
                                 </div>
 
-                                {/* Brands Card */}
-
-                                <div className="card mb-3 shadow-sm">
-                                    <div className="card-body">
-                                        <h5 className="card-title">Brands</h5>
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" id="cat-kids-1" />
-
-                                            &nbsp;Kids
-                                        </div>
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" id="cat-mens" />
-                                            &nbsp;Mens
-                                        </div>
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" id="cat-kids-2" />
-                                            &nbsp;Kids
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                             <div className='col-md-9'>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <span className="bage">Sale</span>
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-1.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Reef Boardsport</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-2.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Rainbow Shoes</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-3.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Strayhorn SP</a></h4>
-                                            <p className="price">$230</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-4.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Bradley Mid</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-5.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Rainbow Shoes</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-6.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Rainbow Shoes</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <span className="bage">Sale</span>
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-7.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Rainbow Shoes</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-8.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Rainbow Shoes</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="product-item">
-                                        <div className="product-thumb">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/product-9.jpg" alt="product-img" />
-                                            <div className="preview-meta">
-                                                <ul>
-                                                    <li>
-                                                        <span data-toggle="modal" data-target="#product-modal">
-                                                            <i className="tf-ion-ios-search-strong"></i>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" ><i className="tf-ion-ios-heart"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#!"><i className="tf-ion-android-cart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div className="product-content">
-                                            <h4><a href="product-single.html">Rainbow Shoes</a></h4>
-                                            <p className="price">$200</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                {
+                                    products.length > 0 && products.map((product) => {
+                                        return (
+                                            <Product key={product.id} product={product} />
+                                        );
+                                    })
+                                }
                             </div>
 
 
