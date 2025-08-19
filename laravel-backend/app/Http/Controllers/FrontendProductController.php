@@ -24,5 +24,8 @@ class FrontendProductController extends Controller
         return $query->get();
     }
 
-    public function show() {}
+    public function show(Product $product)
+    {
+        return $product->load('images', 'sizes');
+    }
 }

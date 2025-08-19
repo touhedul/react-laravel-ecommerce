@@ -1,5 +1,6 @@
 import React from 'react'
 import { VITE_IMAGE_URL } from '../../config/config'
+import { Link } from 'react-router-dom'
 
 const Product = ({ product }) => {
     return (
@@ -27,7 +28,7 @@ const Product = ({ product }) => {
                     </div>
                 </div>
                 <div className="product-content">
-                    <h4><a href="product-single.html">{product.title}</a></h4>
+                    <h4><Link to={`/product/${product.id}`}>{product.title}</Link></h4>
                     <p className="price">${product.price}</p>
                 </div>
             </div>
