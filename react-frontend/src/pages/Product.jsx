@@ -4,6 +4,7 @@ import { Rating } from 'react-simple-star-rating'
 import axiosInstance from '../api/axios'
 import { useParams } from 'react-router-dom'
 import { VITE_IMAGE_URL } from '../config/config'
+import { toast } from 'react-toastify'
 
 
 export const Product = () => {
@@ -20,6 +21,20 @@ export const Product = () => {
             .catch((error) => {
                 console.error("There was an error fetching the product!", error);
             });
+    }
+
+    const addToCart = () => {
+        const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = existingCart.find(item => item.id === product.id);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            existingCart.push({ ...product, quantity: 1 });
+        }
+
+        localStorage.setItem("cart", JSON.stringify(existingCart));
+        toast.success('Product added to cart');
     }
 
     useEffect(() => {
@@ -115,13 +130,7 @@ export const Product = () => {
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="product-quantity">
-                                        <span>Quantity:</span>
-                                        <div className="product-quantity-slider">
-                                            <input id="product-quantity" type="text" value="0" name="product-quantity" />
-                                        </div>
-                                    </div>
-                                    <a href="cart.html" className="btn btn-main mt-20">Add To Cart</a>
+                                    <button onClick={addToCart} className="btn btn-main mt-20">Add To Cart</button>
                                 </div>
                             </div>
                         </div>
@@ -226,39 +235,6 @@ export const Product = () => {
                         </div>
                     </div>
                 </section>
-
-
-
-
-                <div className="modal product-modal fade" id="product-modal">
-                    <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                        <i className="tf-ion-close"></i>
-                    </button>
-                    <div className="modal-dialog " role="document">
-                        <div className="modal-content">
-                            <div className="modal-body">
-                                <div className="row">
-                                    <div className="col-md-8">
-                                        <div className="modal-image">
-                                            <img className="img-responsive" src="public/assets/images/shop/products/modal-product.jpg" />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <div className="product-short-details">
-                                            <h2 className="product-title">GM Pendant, Basalt Grey</h2>
-                                            <p className="product-price">$200</p>
-                                            <p className="product-short-description">
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem iusto nihil cum. Illo laborum numquam rem aut officia dicta cumque.
-                                            </p>
-                                            <a href="#!" className="btn btn-main">Add To Cart</a>
-                                            <a href="#!" className="btn btn-transparent">View Product Details</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </Layout>
 
         </>

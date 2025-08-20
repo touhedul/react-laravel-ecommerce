@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { VITE_IMAGE_URL } from '../../config/config';
 import axiosInstance from '../../api/axios';
 import Product from './Product';
+import { toast } from 'react-toastify';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
