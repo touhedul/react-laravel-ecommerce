@@ -1,7 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
 
 export const Cart = () => {
+
+    const [cartItems, setCartItems] = useState([]);
+
+    const [total, setTotal] = useState(0);
+
+    const getCartItems = () => {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCartItems(cart);
+        const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        setTotal(totalPrice);
+    }
+
+    const removeItem = (item) => {
+        const newItems = cartItems.filter(cartItem => cartItem.id !== item.id);
+        setCartItems(newItems);
+        localStorage.setItem("cart", JSON.stringify(newItems));
+    }
+
+    useEffect(() => {
+        getCartItems();
+    }, [])
+
     return (
         <>
             <Layout>
@@ -38,48 +60,39 @@ export const Cart = () => {
                                                         <tr>
                                                             <th class="">Item Name</th>
                                                             <th class="">Item Price</th>
+                                                            <th class="">Item Quantity</th>
                                                             <th class="">Actions</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr class="">
-                                                            <td class="">
-                                                                <div class="product-info">
-                                                                    <img width="80" src="public/assets/images/shop/cart/cart-1.jpg" alt="" />
-                                                                    <a href="#!">Sunglass</a>
-                                                                </div>
-                                                            </td>
-                                                            <td class="">$200.00</td>
-                                                            <td class="">
-                                                                <a class="product-remove" href="#!">Remove</a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="">
-                                                            <td class="">
-                                                                <div class="product-info">
-                                                                    <img width="80" src="public/assets/images/shop/cart/cart-2.jpg" alt="" />
-                                                                    <a href="#!">Airspace</a>
-                                                                </div>
-                                                            </td>
-                                                            <td class="">$200.00</td>
-                                                            <td class="">
-                                                                <a class="product-remove" href="#!">Remove</a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="">
-                                                            <td class="">
-                                                                <div class="product-info">
-                                                                    <img width="80" src="public/assets/images/shop/cart/cart-3.jpg" alt="" />
-                                                                    <a href="#!">Bingo</a>
-                                                                </div>
-                                                            </td>
-                                                            <td class="">$200.00</td>
-                                                            <td class="">
-                                                                <a class="product-remove" href="#!">Remove</a>
-                                                            </td>
-                                                        </tr>
+                                                        {
+                                                            cartItems.length > 0 ? cartItems.map((item) => {
+                                                                return (
+
+                                                                    <tr class="">
+                                                                        <td class="">
+                                                                            <div class="product-info">
+                                                                                <a href="#!">{item.title}</a>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td class="">${item.price}</td>
+                                                                        <td class="">{item.quantity}</td>
+                                                                        <td class="">
+                                                                            <a href='#' onClick={() => removeItem(item)} class="product-remove">Remove</a>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }) : (
+                                                                <tr>
+                                                                    <td></td>
+                                                                    <td>Cart is empty</td>
+                                                                </tr>
+                                                            )
+
+                                                        }
                                                     </tbody>
                                                 </table>
+                                                <h3 className='text-right'>Total: ${total}</h3>
                                                 <a href="checkout.html" class="btn btn-main pull-right">Checkout</a>
                                             </form>
                                         </div>
