@@ -21,6 +21,9 @@ import { default as ProductsIndex } from './pages/admin/products/Index'
 import { default as ProductsCreate } from './pages/admin/products/Create'
 import { default as ProductsEdit } from './pages/admin/products/Edit'
 
+import { default as UserLogin } from './pages/auth/Login'
+import { default as UserRegister } from './pages/auth/Register'
+
 function App() {
 
   return (
@@ -35,6 +38,10 @@ function App() {
             <Route path='/cart' element={<Cart />} />
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/admin/login' element={<Login />} />
+            <Route path='/login' element={<UserLogin />} />
+            <Route path='/register' element={<UserRegister />} />
+
+
             <Route path='/admin/dashboard' element={
               <AdminRequireAuth>
                 <Dashboard />
